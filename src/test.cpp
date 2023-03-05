@@ -18,7 +18,6 @@ int main(int argc, char **argv)
         e.ConstructNFA();
         std::cerr << "Transition Table:" << std::endl;
         show_NFA(e.nfa);
-        std::cerr << "================================================================" << std::endl;
     }
     return 0;
 }

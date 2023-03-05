@@ -1,9 +1,14 @@
 #include "NFA.h"
 
-int counter = 0;
+int counter;
 const char EPSILON = '\0'; // treat epsilon as char '\0'
 
-NFA char2NFA(char c) {
+void reset_state_counter()
+ {
+    counter = 0;
+ }
+ 
+ NFA char2NFA(char c) {
     NFA nfa;
     nfa.start = counter ++;
     nfa.accept = counter ++;
