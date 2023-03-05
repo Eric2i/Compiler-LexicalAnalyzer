@@ -65,7 +65,7 @@ void Expression::in2post()
 
 // Compare two operators
 bool Expression::PartialOrd(const char a, const char b) {
-    const std::string ordered_operator_lists = "(|#*";
+    const std::string ordered_operator_lists = "(|#+*?";
     return ordered_operator_lists.find(a) >= ordered_operator_lists.find(b);
 }
 
@@ -80,6 +80,10 @@ void Expression::ConstructNFA() {
             operands.pop();
             if (c == '*') {
                 operands.push(KleenClosure(nfa1));
+            } else if(c == '+') {
+                operands.push(PositiveClosure(nfa1));
+            } else if(c == '?') {
+                operands.push(Union(nfa1, char2NFA('\0'))); // r? <=> r | epsilon
             } else {
                 NFA nfa2 = operands.top();
                 operands.pop();

@@ -27,6 +27,7 @@ NFA char2NFA(char c);
 NFA Union(NFA Ns, NFA Nt);
 NFA Concat(NFA Ns, NFA Nt);
 NFA KleenClosure(NFA N);
+NFA PositiveClosure(NFA N);
 void reset_state_counter();
 
 /*DEBUG*/

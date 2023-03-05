@@ -1,6 +1,8 @@
 a
+a?
+a*
+a+
 a|b
 ab
-a*
 a|bc*
 (ac)*(b|d)

@@ -74,6 +74,21 @@ NFA KleenClosure(NFA N) {
     return nfa;
 }
 
+NFA PositiveClosure(NFA N) {
+    NFA nfa;
+    nfa.start = counter ++;
+    nfa.accept = counter ++;
+    // nfa.states.resize(counter);
+
+    nfa.states[nfa.start].outEdges.push_back({N.start, EPSILON});
+    nfa.states[N.accept].outEdges.push_back({N.start, EPSILON});
+    nfa.states[N.accept].outEdges.push_back({nfa.accept, EPSILON});
+
+    // Combine states
+    nfa.states.insert(N.states.begin(), N.states.end());
+    return nfa;
+}
+
 void show_NFA(NFA &N) {
     std::cerr << "(! := \epsilon)\n";
     for(int i = 0; i < counter; i++) {
