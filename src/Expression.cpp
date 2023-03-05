@@ -7,20 +7,34 @@
 void Expression::in2post()
 {
     std::stack<char> stk;
-    // stk.push("(");
-    // this->infix_tokens.push_back(")");
+    char lastToken = '\0';
     for (char c: this->expression)
     {
-        // std::string token = this->infix_tokens[i];
-        // std::cerr << "At token: " << token << std::endl;
-        // std::cerr << "operator number: " << stk.size() << 
-        //             " operand number: " << stk.size() << std::endl;
+        // std::cerr << "lastToken = " << lastToken << " currentToken = " << c << std::endl;
         if(isalnum(c)) {
+            if(isalnum(lastToken) || lastToken=='*' || lastToken == ')') {
+                char Concatenation = '#';
+                while(!stk.empty() && PartialOrd(stk.top(), Concatenation)) {
+                    this->postfix += stk.top();
+                    stk.pop();
+                }
+                stk.push(Concatenation);
+            }
             this->postfix += c;
+            lastToken = c;
         }
         else if (c == '(')
         {
+            if(isalnum(lastToken) || lastToken=='*' || lastToken == ')') {
+                char Concatenation = '#';
+                while(!stk.empty() && PartialOrd(stk.top(), Concatenation)) {
+                    this->postfix += stk.top();
+                    stk.pop();
+                }
+                stk.push(Concatenation);
+            }
             stk.push('(');
+            lastToken = c;
         }
         else if (c == ')')
         {
@@ -29,6 +43,7 @@ void Expression::in2post()
                 this->postfix += stk.top();stk.pop();
             } 
             stk.pop();
+            lastToken = ')';
         }
         else {
             while(!stk.empty() && PartialOrd(stk.top(), c)) {
@@ -36,7 +51,11 @@ void Expression::in2post()
                 stk.pop();
             }
             stk.push(c);
+            lastToken = c;
         }
+
+        // std::cerr << "stk.top() = " << (stk.empty()?'_':stk.top()) << std::endl;
+        // std::cerr << "this->postfix = " << this->postfix << std::endl << std::endl;
     }
     while(!stk.empty()) {
         this->postfix += stk.top();
@@ -46,7 +65,7 @@ void Expression::in2post()
 
 // Compare two operators
 bool Expression::PartialOrd(const char a, const char b) {
-    const std::string ordered_operator_lists = "|.*";
+    const std::string ordered_operator_lists = "(|#*";
     return ordered_operator_lists.find(a) >= ordered_operator_lists.find(b);
 }
 
