@@ -70,12 +70,13 @@ NFA KleenClosure(NFA N) {
 }
 
 void show_NFA(NFA &N) {
+    std::cerr << "(! := \epsilon)\n";
     for(int i = 0; i < counter; i++) {
         std::vector<char> connection(counter, '_');
 
         if(N.states.count(i) == 1) 
             for(auto j: N.states[i].outEdges) 
-                connection[j.dest] = j.label == '\0' ? 'E': j.label;
+                connection[j.dest] = j.label == '\0' ? '!': j.label;
 
         for(auto c: connection) {std::cerr << c << " ";} std::cerr << std::endl;
     }

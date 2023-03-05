@@ -1,19 +1,24 @@
 #include <iostream>
+#include <fstream>
 #include "NFA.h"
 #include "Expression.h"
 
-int main() {
-    // Expression e{"1+2*3"};
-    // e.Tokenize();
-    // e.transform();
-    // e.show_postfix_tokens();
-
-    NFA s = char2NFA('a');
-    report_counter();
-    
-    NFA s_star = KleenClosure(s);
-    report_counter();
-    show_NFA(s_star);
-
+int main(int argc, char **argv)
+{
+    std::ifstream fin("test/input/regex.txt");
+    std::string regex;
+    while (fin >> regex)
+    {
+        Expression e{regex};
+        e.in2post();
+        std::cerr << "================================================================" << std::endl;
+        std::cerr << "After in2post: " << std::endl;
+        std::cerr << e.postfix << '\n';
+        std::cerr << "================================================================" << std::endl;
+        e.ConstructNFA();
+        std::cerr << "Transition Table:" << std::endl;
+        show_NFA(e.nfa);
+        std::cerr << "================================================================" << std::endl;
+    }
     return 0;
 }
