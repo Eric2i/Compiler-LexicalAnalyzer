@@ -32,5 +32,5 @@ void reset_state_counter();
 
 /*DEBUG*/
 void show_NFA(NFA &);
-void report_counter();
+int report_counter();
 #endif

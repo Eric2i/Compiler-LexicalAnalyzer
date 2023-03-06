@@ -103,6 +103,7 @@ void show_NFA(NFA &N) {
     std::cerr << std::endl;
 }
 
-void report_counter() {
-    std::cerr << counter << std::endl;
+int report_counter() {
+    // std::cerr << "counter Reportor: " << counter << std::endl;
+    return counter;
 }
