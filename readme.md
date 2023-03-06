@@ -1,10 +1,11 @@
+
 # 编译原理作业--题目2.1正则表达式的识别题目1.3
 
 *本文档使用markdown格式*
 *为了更好的视觉效果，*
 *建议您使用支持markdown的阅读器*
 
-## 文件目录
+## 文件目录说明
 
 - Makefile 本项目使用makefile辅助开发
 - readme.md 本说明文件
@@ -13,7 +14,7 @@
 - obj/: 目标文件
 - test/: 测试输入输出数据
 
-## 测试
+## 测试复现
 
 1. 清除可能存在的二进制文件或目标文件
 
@@ -38,7 +39,9 @@
       - $\forall s \in \mathcal{S}$, 判断$s \in \mathcal{L}(r)$
         注:该项任务所使用的输入与预期输出: test/{input,output}/regex.txt
 
-## 程序流程示意图
+## 流程示意图
+
+如图所示：对于给定的正则表达$regex$，首先转换为后缀表达式的形式，其次依照McNaughton-Yamada-Thompson算法搭建NFA结构；若给定了待匹配的字符串$String$，则最终使用模拟NFA的方法给出$String$是否匹配正则表达式$regex$的模式。
 
 ![Pipeline](./Pipeline.jpg)
 
@@ -49,14 +52,16 @@
    ```bash
    make build
    ```
-2. 运行
+2. 执行
 
    ```bash
    # src/Simulator "<regex>" "<string>"
    src/Simulator "a|bc*" "bccc"
    ```
 
-   注意: 您必须添加双引号将正则表达式与待判断的字符串包裹起来.
+***注意***
+- 在CLI中执行程序，您的正则表达式与待匹配的字符串均需要使用双引号包裹起来，避免与shell的特殊字符冲突。
+- 目前本程序支持正则表达式中常见的运算符包括: $|$ (Union), $\cdot$(Concatenation), *(KleenClosure), $^+$(Postive Closure), ?(Selective)。 其中连接算符($\cdot$) 并不需要您显式的写在表达式中。
 
 ## 编译环境
 
