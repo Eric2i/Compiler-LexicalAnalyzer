@@ -18,6 +18,7 @@ struct Expression
 
     std::set<int> epsilonClousure(int);
     bool NFASimulator(const std::string &);
+    bool Match(const std::string&);
     void addState(int);
 
 };

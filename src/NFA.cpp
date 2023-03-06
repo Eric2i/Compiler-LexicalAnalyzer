@@ -90,7 +90,7 @@ NFA PositiveClosure(NFA N) {
 }
 
 void show_NFA(NFA &N) {
-    std::cerr << "(! := \epsilon)\n";
+    std::cerr << "(! := \\epsilon)\n";
     for(int i = 0; i < counter; i++) {
         std::vector<char> connection(counter, '_');
 

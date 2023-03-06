@@ -168,3 +168,9 @@ bool Expression::NFASimulator(const std::string & s) {
     }
     return false;
 };
+
+bool Expression::Match(const std::string & s) {
+    this->in2post();
+    this->ConstructNFA();
+    return this->NFASimulator(s);
+}
