@@ -108,3 +108,9 @@ int report_counter() {
     // std::cerr << "counter Reportor: " << counter << std::endl;
     return counter;
 }
+
+int report_counter_then_delta(int delta) {
+    counter += delta;
+    return counter - delta;
+}
+

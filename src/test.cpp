@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "NFA.h"
 #include "DFA.h"
-#include "Expression.h"
 
 int testing_regex_simulation()
 {
@@ -62,18 +60,23 @@ int testing_regex2NFA()
 }
 
 int testing_NFA2DFA() {
-    std::ifstream fin("test/input/single.txt");
-    std::string regex;
-    fin >> regex;
-    fin.close();
+    std::stack<Expression> stk;
 
-    Expression e{regex};
+    Expression e{"ab"};
     e.in2post();
     e.ConstructNFA();
+    stk.push(e);
+
+    Expression d{"a|b"};
+    d.in2post();
+    d.ConstructNFA();
+    stk.push(d);
+
+    Expression summary_exp = mergeExpressions(stk);
 
     DFA D;
-    D.alphabet = e.alphabet;
-    D.NFA2DFA(e.nfa);
+    D.alphabet = summary_exp.alphabet;
+    D.NFA2DFA(summary_exp.nfa);
     show_DFA(D);
     
     return 0;

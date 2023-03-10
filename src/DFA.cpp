@@ -62,6 +62,7 @@ std::set<int> move(std::set<int> T, char a, NFA &N) {
     return afterMove;
 }
 
+// DEBUG
 void show_DFA(DFA &D) {
     std::cerr << "alphabet:" << std::endl;
     show_alphabet(D.alphabet);
@@ -99,14 +100,34 @@ void show_DFA(DFA &D) {
     }
 }
 
+// DEBUG
 void print_Set(std::set<int> &S) {
     for(auto i: S) {std::cerr << i << ",";}
     std::cerr << std::endl;
 }
 
-void show_alphabet(std::set<char> alphabet) {
+// DEBUG
+void show_alphabet(std::set<char> alphabet) { 
     for(auto i: alphabet) {
         std::cerr << i << " ";
     }
     std::cerr << std::endl;
+}
+
+Expression mergeExpressions(std::stack<Expression> exps) {
+    Expression exp;
+    exp.nfa.start = report_counter();
+    exp.nfa.accept = report_counter()+1;
+    
+    while(!exps.empty()) { 
+        auto e = exps.top();
+        exps.pop();
+        exp.alphabet.insert(e.alphabet.begin(), e.alphabet.end());
+        
+        exp.nfa.states[exp.nfa.start].outEdges.push_back({e.nfa.start, EPSILON});
+        exp.nfa.states[e.nfa.accept].outEdges.push_back({exp.nfa.accept, EPSILON});
+        exp.nfa.states.insert(e.nfa.states.begin(), e.nfa.states.end()); 
+    }
+
+    return exp;
 }

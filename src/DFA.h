@@ -5,8 +5,6 @@
 #include <map>
 #include <utility>
 #include <vector>
-#include "FA.h"
-#include "NFA.h"
 #include "Expression.h"
 
 struct DFA {
@@ -23,6 +21,7 @@ struct DFA {
 
 std::set<int> epsilon_closure(std::set<int> T, NFA &N);
 std::set<int> move(std::set<int> T, char a, NFA &N);
+Expression mergeExpressions(std::stack<Expression>);
 
 // DEBUG
 void show_DFA(DFA &);

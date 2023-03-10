@@ -1,7 +1,7 @@
 #include "Expression.h"
 #include <stack>
 #include <cmath>
-#include <iostream> 
+#include <iostream>
 
 const char EPSILON = '\0';
 
@@ -75,7 +75,6 @@ bool Expression::PartialOrd(const char a, const char b) {
 // build NFA from postfix regex
 void Expression::ConstructNFA() {
     std::stack<NFA> operands;
-    reset_state_counter();
     for (char c : this->postfix) {
         if (isalnum(c)) {
             operands.push(char2NFA(c));
@@ -163,11 +162,4 @@ bool Expression::Match(const std::string & s) {
     this->in2post();
     this->ConstructNFA();
     return this->NFASimulator(s);
-}
-
-void show_alphabet(Expression &e) {
-    for(auto i: e.alphabet) {
-        std::cerr << i << " ";
-    }
-    std::cerr << std::endl;
 }
