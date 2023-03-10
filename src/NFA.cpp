@@ -1,4 +1,5 @@
 #include "NFA.h"
+#include <iostream>
 
 int counter;
 const char EPSILON = '\0'; // treat epsilon as char '\0'

@@ -13,7 +13,7 @@ void Expression::in2post()
     for (char c: this->expression)
     {
         // std::cerr << "lastToken = " << lastToken << " currentToken = " << c << std::endl;
-        if(isalnum(c)) {
+        if(isalnum(c) || c == '_') {
             if(isalnum(lastToken) || lastToken=='*' || lastToken == ')') {
                 char Concatenation = '#';
                 while(!stk.empty() && PartialOrd(stk.top(), Concatenation)) {
@@ -22,6 +22,7 @@ void Expression::in2post()
                 }
                 stk.push(Concatenation);
             }
+            this->alphabet.insert(c);
             this->postfix += c;
             lastToken = c;
         }
@@ -102,17 +103,6 @@ void Expression::ConstructNFA() {
     this->nfa = operands.top();
 }
 
-std::set<int> Expression::epsilonClousure(int s) {
-    std::set<int> states;
-    states.insert(s);
-    for(auto i: this->nfa.states[s].outEdges) {
-        if(i.label == EPSILON) {
-            states.insert(i.dest);
-        }
-    }
-    return states;
-}
-
 std::stack<int> oldStates, newStates;
 std::vector<bool> alreadyOn;
 
@@ -173,4 +163,11 @@ bool Expression::Match(const std::string & s) {
     this->in2post();
     this->ConstructNFA();
     return this->NFASimulator(s);
+}
+
+void show_alphabet(Expression &e) {
+    for(auto i: e.alphabet) {
+        std::cerr << i << " ";
+    }
+    std::cerr << std::endl;
 }

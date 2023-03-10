@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <stack>
 #include <set>
 #include "NFA.h"
 
@@ -11,19 +12,19 @@ struct Expression
     std::string expression;
     std::string postfix;
     NFA nfa;
+    std::set<char> alphabet;
 
     void in2post();
     bool PartialOrd(const char, const char);
     void ConstructNFA();
 
-    std::set<int> epsilonClousure(int);
     bool NFASimulator(const std::string &);
     bool Match(const std::string&);
     void addState(int);
-
 };
 
 //DEBUG
 void report_currentStates();
+void show_alphabet(Expression &e);
 
 #endif

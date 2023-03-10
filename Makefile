@@ -3,7 +3,7 @@ CFLAGS=-Wall -std=c++17
 BINDIR=bin
 OBJDIR=obj
 SRCDIR=src
-OBJ=obj/Expression.o obj/NFA.o
+OBJ=obj/Expression.o obj/NFA.o obj/DFA.o
 DEBUG=0
 
 ifeq ($(DEBUG), 1) 

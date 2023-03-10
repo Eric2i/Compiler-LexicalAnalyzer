@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "NFA.h"
+#include "DFA.h"
 #include "Expression.h"
 
 int testing_regex_simulation()
@@ -39,7 +40,7 @@ int testing_regex_simulation()
 
 int testing_regex2NFA()
 {
-    std::ifstream fin("test/input/regex.txt");
+    std::ifstream fin("test/input/single.txt");
     std::string regex;
     while (fin >> regex)
     {
@@ -60,9 +61,28 @@ int testing_regex2NFA()
     return 0;
 }
 
+int testing_NFA2DFA() {
+    std::ifstream fin("test/input/single.txt");
+    std::string regex;
+    fin >> regex;
+    fin.close();
+
+    Expression e{regex};
+    e.in2post();
+    e.ConstructNFA();
+
+    DFA D;
+    D.alphabet = e.alphabet;
+    D.NFA2DFA(e.nfa);
+    show_DFA(D);
+    
+    return 0;
+}
+
 std::vector<std::function<int()>> testing_lists = {
-    testing_regex_simulation,
-    testing_regex2NFA
+    // testing_regex_simulation,
+    // testing_regex2NFA,
+    testing_NFA2DFA,
 };
 
 int main() {
