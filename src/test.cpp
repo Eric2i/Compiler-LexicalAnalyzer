@@ -20,7 +20,9 @@ int testing_multipleNFA2DFA() {
     DFA D;
     D.alphabet = summary_exp.alphabet;
     D.NFA2DFA(summary_exp.nfa);
+    D.MoveTokens(summary_exp.tokens);
     show_DFA(D);
+    show_tokens(D);
     
     return 0;
 }
@@ -28,7 +30,7 @@ int testing_multipleNFA2DFA() {
 int testing_DFAMinimizing() {
     std::stack<Expression> stk;
     Expression e1({"ab"});
-    Expression e2({"a|bc*"});
+    Expression e2({"a|b"});
     e1.in2post(); e2.in2post();
     e1.ConstructNFA(); e2.ConstructNFA();
     stk.push(e1); stk.push(e2);
@@ -37,9 +39,12 @@ int testing_DFAMinimizing() {
     DFA D;
     D.alphabet = e.alphabet;
     D.NFA2DFA(e.nfa);
-    // show_DFA(D);
+    D.MoveTokens(e.tokens);
+    show_DFA(D);
+    show_tokens(D);
     DFA M = DFAMinimize(D);
     show_DFA(M);
+    show_tokens(M);
     return 0;
 }
 

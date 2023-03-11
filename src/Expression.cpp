@@ -100,6 +100,7 @@ void Expression::ConstructNFA() {
     }
 
     this->nfa = operands.top();
+    this->tokens[this->nfa.accept] = Token({"ID", "", this->expression});
 }
 
 std::stack<int> oldStates, newStates;

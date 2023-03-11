@@ -18,13 +18,16 @@ struct DFA {
     std::set<DFAState> Dstates;
     std::map<std::pair<DFAState, char>, DFAState> Dtrans;
     
+    std::map<DFAState, std::vector<Token>> tokens;
+
     void NFA2DFA(NFA&);
+    void MoveTokens(std::map<NFAState, Token> &);
     DFAState trans(DFAState&, char&);
 };
 
-std::set<int> epsilon_closure(std::set<int> T, NFA &N);
-std::set<int> move(std::set<int> T, char a, NFA &N);
 Expression mergeExpressions(std::stack<Expression>);
+DFAState epsilon_closure(DFAState, NFA &N);
+DFAState move(DFAState T, char a, NFA &N);
 DFA DFAMinimize(DFA &D);
 void set_partition(std::set<DFAState> states, int id);
 void set_partition(DFAState s, int id);
@@ -33,7 +36,8 @@ std::set<std::set<DFAState>> subgroup(std::set<DFAState> G, DFA &D);
 
 // DEBUG
 void show_DFA(DFA &);
-void print_Set(std::set<int> &);
+void show_tokens(DFA &);
+void print_Set(const std::set<int> &);
 void show_alphabet(std::set<char>);
 void show_partition_table();
 void subgrouping_report(std::set<DFAState>, std::set<std::set<DFAState> >);

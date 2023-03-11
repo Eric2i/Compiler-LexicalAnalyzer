@@ -6,6 +6,9 @@
 #include <stack>
 #include <set>
 #include "NFA.h"
+#include "Token.h"
+
+typedef int NFAState;
 
 struct Expression
 {    
@@ -13,6 +16,7 @@ struct Expression
     std::string postfix;
     NFA nfa;
     std::set<char> alphabet;
+    std::map<NFAState, Token> tokens;
 
     void in2post();
     bool PartialOrd(const char, const char);

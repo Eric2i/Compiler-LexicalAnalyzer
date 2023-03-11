@@ -5,7 +5,7 @@
 const char EPSILON = '\0';
 
 void DFA::NFA2DFA(NFA &N) {
-    this->start = epsilon_closure(std::set<int>({N.start}), N);    
+    this->start = epsilon_closure(DFAState({N.start}), N);    
     this->Dstates.insert(this->start);
     std::map<std::set<int>, bool> isMarked;
     while(isMarked.size() < this->Dstates.size()) {
@@ -28,7 +28,19 @@ void DFA::NFA2DFA(NFA &N) {
     }
 }
 
-std::set<int> epsilon_closure(std::set<int> T, NFA &N) {
+void DFA::MoveTokens(std::map<NFAState, Token> &Ntokens) {
+    for(auto dfastate: this->Dstates) {
+        for(auto entry: Ntokens) {
+            NFAState nfastate = entry.first;
+            Token token = entry.second;
+            if(dfastate.find(nfastate)!= dfastate.end()) {
+                this->tokens[dfastate].push_back(token);
+            }
+        }
+    }
+}
+
+DFAState epsilon_closure(DFAState T, NFA &N) {
     std::stack<int> stk;
     for(auto i: T) stk.push(i);
     std::set<int> closure;
@@ -49,7 +61,7 @@ std::set<int> epsilon_closure(std::set<int> T, NFA &N) {
     return closure;
 }
 
-std::set<int> move(std::set<int> T, char a, NFA &N) {
+DFAState move(DFAState T, char a, NFA &N) {
     std::set<int> afterMove;
 
     for(auto t: T) {
@@ -83,6 +95,8 @@ Expression mergeExpressions(std::stack<Expression> exps) {
         exp.nfa.states[exp.nfa.start].outEdges.push_back({e.nfa.start, EPSILON});
         exp.nfa.states[e.nfa.accept].outEdges.push_back({exp.nfa.accept, EPSILON});
         exp.nfa.states.insert(e.nfa.states.begin(), e.nfa.states.end()); 
+
+        exp.tokens.insert(e.tokens.begin(), e.tokens.end());
     }
 
     return exp;
@@ -146,6 +160,16 @@ DFA DFAMinimize(DFA &D) {
             if(t.size() > 0) dfa.Dtrans[{Repr[PartitionID[s]], c}] = Repr[PartitionID[t]];
         }
     }
+
+    // move tokens
+    for(auto entry: D.tokens) {
+        DFAState dfastate = entry.first;
+        std::vector<Token> tokens = entry.second;
+        for(auto token: tokens) {
+            dfa.tokens[Repr[PartitionID[dfastate]]].push_back(token);
+        }
+    }
+
     return dfa;
 }
 
@@ -220,7 +244,21 @@ void show_DFA(DFA &D) {
 }
 
 // DEBUG
-void print_Set(std::set<int> &S) {
+void show_tokens(DFA &D) {
+    std::cerr << "Tokens==================================================" << std::endl;
+     for(auto t: D.tokens) {
+        print_Set(t.first);
+        std::cerr << " => " << "{";
+        for(auto t: t.second) {
+            std::cerr << t.pattern << ",";
+        }
+        std::cerr << "}" << std::endl;
+    }
+    std::cerr << "=========================================================" << std::endl;
+}
+
+// DEBUG
+void print_Set(const std::set<int> &S) {
     std::cerr << "{";
     for(auto i: S) {std::cerr << i << ",";}
     std::cerr << "}";
