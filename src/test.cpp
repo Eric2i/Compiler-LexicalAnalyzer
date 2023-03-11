@@ -2,64 +2,7 @@
 #include <fstream>
 #include "DFA.h"
 
-int testing_regex_simulation()
-{
-    std::ifstream fin("test/input/single.txt");
-    std::ifstream expectations("test/output/single.txt");
-    std::string regex;
-    
-    fin >> regex;
-    Expression e{regex};
-    e.in2post();
-    e.ConstructNFA();
-
-    #if defined(DEBUG)
-    std::cerr << "Transition Table:" << std::endl;
-    show_NFA(e.nfa);
-    #endif
-
-    std::string sample;
-    std::string exp;
-    while(fin >> sample) {
-        bool matching_result = e.NFASimulator(sample);
-
-        expectations >> exp;
-        assert(bool(exp[0]-'0') == matching_result);
-
-        #if defined(DEBUG)
-        std::cerr << "regex:[" << regex << "] accepts string: [" << sample << "] ? ";
-        std::cerr << (matching_result? "Accepted": "Rejected") << std::endl;
-        #endif
-    }
-
-    fin.close();
-    return 0;
-}
-
-int testing_regex2NFA()
-{
-    std::ifstream fin("test/input/single.txt");
-    std::string regex;
-    while (fin >> regex)
-    {
-        Expression e{regex};
-        e.in2post();
-        #if defined(DEBUG)
-        std::cerr << "================================================================" << std::endl;
-        std::cerr << "After in2post: " << std::endl;
-        std::cerr << e.postfix << '\n';
-        #endif
-        e.ConstructNFA();
-        std::cerr << "================================================================" << std::endl;
-        std::cerr << "REGEX: " << e.expression << std::endl;
-        std::cerr << "Transition Table:" << std::endl;
-        show_NFA(e.nfa);
-    }
-    fin.close();
-    return 0;
-}
-
-int testing_NFA2DFA() {
+int testing_multipleNFA2DFA() {
     std::stack<Expression> stk;
 
     Expression e{"ab"};
@@ -82,10 +25,27 @@ int testing_NFA2DFA() {
     return 0;
 }
 
+int testing_DFAMinimizing() {
+    std::stack<Expression> stk;
+    Expression e1({"ab"});
+    Expression e2({"a|bc*"});
+    e1.in2post(); e2.in2post();
+    e1.ConstructNFA(); e2.ConstructNFA();
+    stk.push(e1); stk.push(e2);
+    Expression e = mergeExpressions(stk);
+
+    DFA D;
+    D.alphabet = e.alphabet;
+    D.NFA2DFA(e.nfa);
+    // show_DFA(D);
+    DFA M = DFAMinimize(D);
+    show_DFA(M);
+    return 0;
+}
+
 std::vector<std::function<int()>> testing_lists = {
-    // testing_regex_simulation,
-    // testing_regex2NFA,
-    testing_NFA2DFA,
+    // testing_multipleNFA2DFA,
+    testing_DFAMinimizing
 };
 
 int main() {
