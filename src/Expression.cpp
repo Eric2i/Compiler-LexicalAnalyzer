@@ -5,16 +5,47 @@
 
 const char EPSILON = '\0';
 
+bool isInAlphabet(char c) {
+    if(isalnum(c)) return true;
+    switch(c) {
+        case '_':
+            return true;
+        case '<':
+            return true;
+        case '=':
+            return true;
+        case '!':
+            return true;
+        case '>':
+            return true; 
+        case '-':
+            return true;
+    }
+    return false;
+}
+
+bool allowConcatFollow(char c) {
+    if(isInAlphabet(c)) return true;
+    switch(c) {
+        case '*':
+            return true;
+        case ')':
+            return true;
+        case '?':
+            return true;
+    }
+    return false;
+}
+
 // Transform the infix_expression to postfix expression
 void Expression::in2post()
 {
     std::stack<char> stk;
     char lastToken = '\0';
-    for (char c: this->expression)
+    for (auto c: this->expression) 
     {
-        // std::cerr << "lastToken = " << lastToken << " currentToken = " << c << std::endl;
-        if(isalnum(c) || c == '_') {
-            if(isalnum(lastToken) || lastToken=='*' || lastToken == ')') {
+        if(isInAlphabet(c)) {
+            if(allowConcatFollow(lastToken)) {
                 char Concatenation = '#';
                 while(!stk.empty() && PartialOrd(stk.top(), Concatenation)) {
                     this->postfix += stk.top();
@@ -28,7 +59,7 @@ void Expression::in2post()
         }
         else if (c == '(')
         {
-            if(isalnum(lastToken) || lastToken=='*' || lastToken == ')') {
+            if(allowConcatFollow(lastToken)) {
                 char Concatenation = '#';
                 while(!stk.empty() && PartialOrd(stk.top(), Concatenation)) {
                     this->postfix += stk.top();
@@ -48,7 +79,7 @@ void Expression::in2post()
             stk.pop();
             lastToken = ')';
         }
-        else {
+        else { // regular expression operators
             while(!stk.empty() && PartialOrd(stk.top(), c)) {
                 this->postfix += stk.top();
                 stk.pop();
@@ -74,9 +105,10 @@ bool Expression::PartialOrd(const char a, const char b) {
 
 // build NFA from postfix regex
 void Expression::ConstructNFA() {
+    this->in2post();
     std::stack<NFA> operands;
     for (char c : this->postfix) {
-        if (isalnum(c)) {
+        if (isInAlphabet(c)) {
             operands.push(char2NFA(c));
         } else {
             NFA nfa1 = operands.top();
@@ -100,7 +132,7 @@ void Expression::ConstructNFA() {
     }
 
     this->nfa = operands.top();
-    this->tokens[this->nfa.accept] = Token({"ID", "", this->expression});
+    this->tokens[this->nfa.accept] = Token({this->token_name, this->expression});
 }
 
 std::stack<int> oldStates, newStates;

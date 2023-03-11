@@ -4,6 +4,14 @@
 
 const char EPSILON = '\0';
 
+DFA Expression2DFA(Expression &e) {
+    DFA D;
+    D.alphabet = e.alphabet;
+    D.NFA2DFA(e.nfa);       
+    D.MoveTokens(e.tokens);
+    return D;
+}
+
 void DFA::NFA2DFA(NFA &N) {
     this->start = epsilon_closure(DFAState({N.start}), N);    
     this->Dstates.insert(this->start);
@@ -34,7 +42,7 @@ void DFA::MoveTokens(std::map<NFAState, Token> &Ntokens) {
             NFAState nfastate = entry.first;
             Token token = entry.second;
             if(dfastate.find(nfastate)!= dfastate.end()) {
-                this->tokens[dfastate].push_back(token);
+                this->tokens[dfastate].insert(token);
             }
         }
     }
@@ -164,9 +172,9 @@ DFA DFAMinimize(DFA &D) {
     // move tokens
     for(auto entry: D.tokens) {
         DFAState dfastate = entry.first;
-        std::vector<Token> tokens = entry.second;
+        std::set<Token> tokens = entry.second;
         for(auto token: tokens) {
-            dfa.tokens[Repr[PartitionID[dfastate]]].push_back(token);
+            dfa.tokens[Repr[PartitionID[dfastate]]].insert(token);
         }
     }
 
@@ -210,49 +218,57 @@ void show_DFA(DFA &D) {
     std::cerr << "alphabet:" << std::endl;
     show_alphabet(D.alphabet);
 
+    std::map<DFAState, int> notations;
     std::cerr << "Total states: " << D.Dstates.size() << std::endl;
     
     for(auto s: D.Dstates) {
+        notations[s] = notations.size();
+        std::cerr << notations[s] << ": ";
         std::cerr << "{";
-        for(auto i: s) {std::cerr << i << ", ";}
-        std::cerr << "}, ";
+        for(auto i: s) {std::cerr << i << ",";}
+        std::cerr << "}\n";
     }
     std::cerr << std::endl;
 
     std::cerr << "start state: " << std::endl;
-    std::cerr << "{";
-    for(auto i: D.start) {std::cerr << i << ", ";}
-    std::cerr << "}, ";
-    std::cerr << std::endl;
+    std::cerr << notations[D.start] << std::endl;
     
     std::cerr << "accept states: " << std::endl;
     for(auto s: D.accept) {
-        std::cerr << "{";
-        for(auto i: s) {std::cerr << i << ", ";}
-        std::cerr << "}, ";
+        std::cerr << notations[s] << " ";
     }
     std::cerr << std::endl;
 
     std::cerr << "valid transitions: " << std::endl;
     for(auto t: D.Dtrans) {
-        std::cerr << "{";
-        for(auto i: t.first.first) {std::cerr << i << ",";}
-        std::cerr << "} -> " << t.first.second << " -> {";
-        for(auto i: t.second) {std::cerr << i << ",";}
-        std::cerr << "}"<<std::endl;
+        // std::cerr << "{";
+        // for(auto i: t.first.first) {std::cerr << i << ",";}
+        // std::cerr << "} -> " << t.first.second << " -> {";
+        // for(auto i: t.second) {std::cerr << i << ",";}
+        // std::cerr << "}"<<std::endl;
+        std::cerr << notations[t.first.first] << " --> " 
+                << notations[t.second] 
+                << ": " << t.first.second
+                << std::endl;
     }
 }
 
 // DEBUG
 void show_tokens(DFA &D) {
+    std::map<DFAState, int> notations;
+    for(auto s: D.Dstates) {
+        notations[s] = notations.size();
+    }
     std::cerr << "Tokens==================================================" << std::endl;
      for(auto t: D.tokens) {
-        print_Set(t.first);
-        std::cerr << " => " << "{";
+        std::cerr << notations[t.first];
+        std::cerr << ": ";
+        // std::cerr << "{";
         for(auto t: t.second) {
-            std::cerr << t.pattern << ",";
+            std::cerr << t.Name << ",";
         }
-        std::cerr << "}" << std::endl;
+        // std::cerr << "}";
+        std::cerr << std::endl;
     }
     std::cerr << "=========================================================" << std::endl;
 }

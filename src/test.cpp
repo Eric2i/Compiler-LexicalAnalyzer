@@ -48,9 +48,31 @@ int testing_DFAMinimizing() {
     return 0;
 }
 
+int testting_regex2MinimalDFA() {
+    std::ifstream fin("test/input/tokens.txt");
+    std::stack<Expression> stk;
+
+    std::string token_name, token_pattern;
+    while(fin >> token_name >> token_pattern) {
+        token_name = token_name.erase(token_name.size()-1);
+        // std::cerr << "token_name: " << token_name << " token_pattern: " << token_pattern << std::endl;
+        Expression exp({token_pattern, token_name});
+        exp.ConstructNFA();
+        stk.push(exp);
+    }
+
+    Expression e = mergeExpressions(stk);
+    DFA D = Expression2DFA(e);
+    DFA M = DFAMinimize(D);
+    show_DFA(M);
+    show_tokens(M);
+    return 0;
+}
+
 std::vector<std::function<int()>> testing_lists = {
     // testing_multipleNFA2DFA,
-    testing_DFAMinimizing
+    // testing_DFAMinimizing,
+    testting_regex2MinimalDFA
 };
 
 int main() {

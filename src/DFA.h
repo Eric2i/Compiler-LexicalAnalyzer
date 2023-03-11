@@ -18,17 +18,18 @@ struct DFA {
     std::set<DFAState> Dstates;
     std::map<std::pair<DFAState, char>, DFAState> Dtrans;
     
-    std::map<DFAState, std::vector<Token>> tokens;
+    std::map<DFAState, std::set<Token>> tokens;
 
     void NFA2DFA(NFA&);
     void MoveTokens(std::map<NFAState, Token> &);
     DFAState trans(DFAState&, char&);
 };
 
+DFA DFAMinimize(DFA &);
+DFA Expression2DFA(Expression &e);
 Expression mergeExpressions(std::stack<Expression>);
 DFAState epsilon_closure(DFAState, NFA &N);
 DFAState move(DFAState T, char a, NFA &N);
-DFA DFAMinimize(DFA &D);
 void set_partition(std::set<DFAState> states, int id);
 void set_partition(DFAState s, int id);
 void remove_partition_byID(int id);

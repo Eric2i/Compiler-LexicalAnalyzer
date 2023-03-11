@@ -13,6 +13,7 @@ typedef int NFAState;
 struct Expression
 {    
     std::string expression;
+    std::string token_name;
     std::string postfix;
     NFA nfa;
     std::set<char> alphabet;

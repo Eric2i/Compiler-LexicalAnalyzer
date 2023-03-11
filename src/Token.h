@@ -5,8 +5,11 @@
 
 struct Token {
     std::string Name;
-    std::string lexeme;
     std::string pattern;
+
+    bool operator<(const Token& other) const {
+        return this->Name > other.Name;
+    }
 };
 
 #endif
