@@ -7,12 +7,12 @@ int testing_multipleNFA2DFA() {
 
     Expression e{"ab"};
     e.in2post();
-    e.ConstructNFA();
+    e.ConstructNFA(0);
     stk.push(e);
 
     Expression d{"a|b"};
     d.in2post();
-    d.ConstructNFA();
+    d.ConstructNFA(1);
     stk.push(d);
 
     Expression summary_exp = mergeExpressions(stk);
@@ -32,7 +32,7 @@ int testing_DFAMinimizing() {
     Expression e1({"ab"});
     Expression e2({"a|b"});
     e1.in2post(); e2.in2post();
-    e1.ConstructNFA(); e2.ConstructNFA();
+    e1.ConstructNFA(0); e2.ConstructNFA(1);
     stk.push(e1); stk.push(e2);
     Expression e = mergeExpressions(stk);
 
@@ -52,12 +52,13 @@ int testting_regex2MinimalDFA() {
     std::ifstream fin("test/input/tokens.txt");
     std::stack<Expression> stk;
 
+    int sequence = 0;
     std::string token_name, token_pattern;
     while(fin >> token_name >> token_pattern) {
         token_name = token_name.erase(token_name.size()-1);
         // std::cerr << "token_name: " << token_name << " token_pattern: " << token_pattern << std::endl;
         Expression exp({token_pattern, token_name});
-        exp.ConstructNFA();
+        exp.ConstructNFA(sequence++);
         stk.push(exp);
     }
 
@@ -66,6 +67,7 @@ int testting_regex2MinimalDFA() {
     DFA M = DFAMinimize(D);
     show_DFA(M);
     show_tokens(M);
+    make_mermaid(M);
     return 0;
 }
 

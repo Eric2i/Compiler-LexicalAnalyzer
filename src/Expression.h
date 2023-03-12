@@ -21,7 +21,7 @@ struct Expression
 
     void in2post();
     bool PartialOrd(const char, const char);
-    void ConstructNFA();
+    void ConstructNFA(int);
 
     bool NFASimulator(const std::string &);
     bool Match(const std::string&);

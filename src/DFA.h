@@ -18,7 +18,7 @@ struct DFA {
     std::set<DFAState> Dstates;
     std::map<std::pair<DFAState, char>, DFAState> Dtrans;
     
-    std::map<DFAState, std::set<Token>> tokens;
+    std::map<DFAState, Token> tokens;
 
     void NFA2DFA(NFA&);
     void MoveTokens(std::map<NFAState, Token> &);
@@ -43,4 +43,5 @@ void show_alphabet(std::set<char>);
 void show_partition_table();
 void subgrouping_report(std::set<DFAState>, std::set<std::set<DFAState> >);
 void show_vectorization(std::map<std::vector<int>, std::set<DFAState>> &);
+void make_mermaid(DFA &);
 #endif

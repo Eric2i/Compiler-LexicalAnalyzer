@@ -104,7 +104,7 @@ bool Expression::PartialOrd(const char a, const char b) {
 }
 
 // build NFA from postfix regex
-void Expression::ConstructNFA() {
+void Expression::ConstructNFA(int sequence) {
     this->in2post();
     std::stack<NFA> operands;
     for (char c : this->postfix) {
@@ -132,7 +132,7 @@ void Expression::ConstructNFA() {
     }
 
     this->nfa = operands.top();
-    this->tokens[this->nfa.accept] = Token({this->token_name, this->expression});
+    this->tokens[this->nfa.accept] = Token({sequence, this->token_name, this->expression});
 }
 
 std::stack<int> oldStates, newStates;
@@ -193,6 +193,6 @@ bool Expression::NFASimulator(const std::string & s) {
 
 bool Expression::Match(const std::string & s) {
     this->in2post();
-    this->ConstructNFA();
+    this->ConstructNFA(0);
     return this->NFASimulator(s);
 }

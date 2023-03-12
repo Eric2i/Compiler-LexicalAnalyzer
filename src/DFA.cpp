@@ -1,6 +1,7 @@
 #include "DFA.h"
 #include <stack>
 #include <iostream>
+#include <fstream>
 
 const char EPSILON = '\0';
 
@@ -42,7 +43,11 @@ void DFA::MoveTokens(std::map<NFAState, Token> &Ntokens) {
             NFAState nfastate = entry.first;
             Token token = entry.second;
             if(dfastate.find(nfastate)!= dfastate.end()) {
-                this->tokens[dfastate].insert(token);
+                if(this->tokens.find(dfastate) == this->tokens.end()) this->tokens[dfastate] = token;
+                // Conflict Resolution
+                else if(token < this->tokens[dfastate]) {
+                    this->tokens[dfastate] = token;
+                }
             }
         }
     }
@@ -119,14 +124,24 @@ DFA DFAMinimize(DFA &D) {
     dfa.alphabet = D.alphabet;
     int counter = 0;
 
-    // Initialize partition
-    PartitionID[DFAState({})] = -1;
-    set_partition(D.accept, counter++);
+    /* Initialization */
+    // Special Case, to fill the blankets in transition table
+    PartitionID[DFAState({})] = -1; 
+    // set_partition for final states accepting same token
+    std::map<Token, std::set<DFAState>> token2states;
+    for(auto s: D.tokens) {
+        DFAState state = s.first;
+        Token token = s.second;
+        token2states[token].insert(state);
+    }
+    for(auto s: token2states) {
+        set_partition(s.second, counter++);
+    }
+    // set_partiton for all non-final states
     for(auto s: D.Dstates) if(D.accept.find(s) == D.accept.end()) set_partition(s, counter);
     ++counter;
     
-    // show_partition_table();
-    // Split
+    /* spliting */
     bool splited;
     do{
         splited = false;
@@ -148,20 +163,23 @@ DFA DFAMinimize(DFA &D) {
         }
     }while(splited);
 
-    // std::cerr << "size of partition now: " << Partition.size() << std::endl;
-    // choose representative
+    /* choose representative */
    for(auto s: Partition) {
         int id = s.first;
+        // always choose the first DFAState in one Group as representative
         Repr[id] = *s.second.begin();
+        // minimized nfa only includes representatives from each group
         dfa.Dstates.insert(Repr[id]);
     }
 
-    // Construct minimized dfa
+    /* complete the minimized dfa */
+    // define start states
     dfa.start = Repr[PartitionID[D.start]];
+    // define final states
     for(DFAState s: D.accept) {
         dfa.accept.insert(Repr[PartitionID[s]]);
     }
-
+    // define transition table
     for(auto s: dfa.Dstates) {
         for(auto c: D.alphabet) {
             DFAState t = D.trans(s, c);
@@ -169,15 +187,14 @@ DFA DFAMinimize(DFA &D) {
         }
     }
 
-    // move tokens
+    // define token that each final state accept
     for(auto entry: D.tokens) {
         DFAState dfastate = entry.first;
-        std::set<Token> tokens = entry.second;
-        for(auto token: tokens) {
-            dfa.tokens[Repr[PartitionID[dfastate]]].insert(token);
-        }
+        Token token = entry.second;
+        dfa.tokens[Repr[PartitionID[dfastate]]] = token;
     }
 
+    // return the minimized dfa
     return dfa;
 }
 
@@ -264,9 +281,7 @@ void show_tokens(DFA &D) {
         std::cerr << notations[t.first];
         std::cerr << ": ";
         // std::cerr << "{";
-        for(auto t: t.second) {
-            std::cerr << t.Name << ",";
-        }
+        std::cerr << t.second.Name;
         // std::cerr << "}";
         std::cerr << std::endl;
     }
@@ -305,6 +320,7 @@ void show_partition_table() {
     std::cerr << "================================================================" << std::endl;
 }
 
+// DEBUG
 void subgrouping_report(std::set<DFAState> G, std::set<std::set<DFAState> > subgroups) {
     // subgrouping(G) -> subgroups
     std::cerr<<"SubgroupingReport============================================" << std::endl;
@@ -320,6 +336,7 @@ void subgrouping_report(std::set<DFAState> G, std::set<std::set<DFAState> > subg
     std::cerr<<"=============================================================" << std::endl;
 }
 
+// DEBUG
 void show_vectorization(std::map<std::vector<int>, std::set<DFAState>> &subsets) {
     std::cerr << "vectorizationReport================================" << std::endl;
     for(auto entry: subsets) {
@@ -333,4 +350,33 @@ void show_vectorization(std::map<std::vector<int>, std::set<DFAState>> &subsets)
         std::cerr << "}\n";
     }
     std::cerr << "===================================================" << std::endl;
+}
+
+// DEBUG
+void make_mermaid(DFA &D) {
+    std::ofstream fout("test/output/mermaid.txt");
+    if(!fout) {
+        std::cerr << "Failed to open the output file" << std::endl;
+        return;
+    }
+    
+    fout << "stateDiagram-v2\n";
+    std::map<DFAState, int> notations;
+    for(auto s: D.Dstates) {
+        notations[s] = notations.size();
+    }
+    for(auto t: D.Dtrans) {
+        fout << notations[t.first.first] << " --> " 
+                << notations[t.second] 
+                << ": " << t.first.second
+                << std::endl;
+    }
+    for(auto t: D.tokens) {
+        fout << "note right of ";
+        fout << notations[t.first];
+        fout << ": ";
+        fout << t.second.Name;
+        fout << std::endl;
+    }
+    fout.close();
 }
