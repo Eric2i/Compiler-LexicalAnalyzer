@@ -5,9 +5,26 @@
 
 const char EPSILON = '\0';
 
+std::map<std::string, std::string> var2regex; // regular definitions
+void Expression::definition2regex() {
+    // std::cerr << "before converting" << this->expression << std::endl;
+    for(int i = 0; i < this->expression.size(); i++) { 
+        if(this->expression[i] == '{') {
+            int delta = 0;
+            while(this->expression[i+delta] != '}') delta++;
+            this->expression.replace(i, delta+1, var2regex[this->expression.substr(i+1, delta-1)]);
+            i += var2regex[this->expression.substr(i+1, delta-1)].size();
+        }
+    }
+    // std::cerr << "after converting " << this->expression << std::endl;
+    return;
+}
+
 bool isInAlphabet(char c) {
     if(isalnum(c)) return true;
     switch(c) {
+        case '.':
+            return true;
         case '_':
             return true;
         case '<':
@@ -19,6 +36,10 @@ bool isInAlphabet(char c) {
         case '>':
             return true; 
         case '-':
+            return true;
+        case ' ':
+            return true;
+        case '\\':
             return true;
     }
     return false;
@@ -37,9 +58,12 @@ bool allowConcatFollow(char c) {
     return false;
 }
 
+
 // Transform the infix_expression to postfix expression
 void Expression::in2post()
 {
+    this->definition2regex();
+    var2regex[this->token_name] = "(" + this->expression + ")";
     std::stack<char> stk;
     char lastToken = '\0';
     for (auto c: this->expression) 

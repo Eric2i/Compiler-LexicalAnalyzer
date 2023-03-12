@@ -54,9 +54,11 @@ int testting_regex2MinimalDFA() {
 
     int sequence = 0;
     std::string token_name, token_pattern;
-    while(fin >> token_name >> token_pattern) {
+    while(std::getline(fin, token_name, ' ')) {
+        std::getline(fin, token_pattern);
         token_name = token_name.erase(token_name.size()-1);
-        // std::cerr << "token_name: " << token_name << " token_pattern: " << token_pattern << std::endl;
+        // std::cerr << "token_name:" << token_name << " token_pattern:" << token_pattern << std::endl;
+        
         Expression exp({token_pattern, token_name});
         exp.ConstructNFA(sequence++);
         stk.push(exp);
@@ -65,7 +67,7 @@ int testting_regex2MinimalDFA() {
     Expression e = mergeExpressions(stk);
     DFA D = Expression2DFA(e);
     DFA M = DFAMinimize(D);
-    show_DFA(M);
+    // show_DFA(M);
     show_tokens(M);
     make_mermaid(M);
     return 0;

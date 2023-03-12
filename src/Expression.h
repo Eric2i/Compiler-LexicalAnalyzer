@@ -19,6 +19,7 @@ struct Expression
     std::set<char> alphabet;
     std::map<NFAState, Token> tokens;
 
+    void definition2regex();
     void in2post();
     bool PartialOrd(const char, const char);
     void ConstructNFA(int);
