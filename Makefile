@@ -13,10 +13,7 @@ endif
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(BINDIR)/tester: $(OBJ) $(OBJDIR)/test.o
-	$(CC) -o $@ $^
-
-$(BINDIR)/Simulator: $(OBJ) $(OBJDIR)/main.o
+$(BINDIR)/tester: $(OBJ) $(OBJDIR)/analyzer.o
 	$(CC) -o $@ $^
 
 test: $(BINDIR)/tester

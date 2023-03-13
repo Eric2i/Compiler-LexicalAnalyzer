@@ -9,9 +9,14 @@ std::map<std::string, std::string> var2regex; // regular definitions
 void Expression::definition2regex() {
     // std::cerr << "before converting" << this->expression << std::endl;
     for(int i = 0; i < this->expression.size(); i++) { 
-        if(this->expression[i] == '{') {
+        if(this->expression[i] == '\\') {
+            i += 1; // always skip the backslash
+        }
+        else if(this->expression[i] == '{') {
             int delta = 0;
             while(this->expression[i+delta] != '}') delta++;
+            if(var2regex.find(this->expression.substr(i+1, delta-1)) == var2regex.end()) 
+                {std::cerr << "TARGET {"<< this->expression.substr(i+1, delta-1) <<"} NOT FOUND!" << std::endl; exit(1);}
             this->expression.replace(i, delta+1, var2regex[this->expression.substr(i+1, delta-1)]);
             i += var2regex[this->expression.substr(i+1, delta-1)].size();
         }
@@ -23,8 +28,6 @@ void Expression::definition2regex() {
 bool isInAlphabet(char c) {
     if(isalnum(c)) return true;
     switch(c) {
-        case '.':
-            return true;
         case '_':
             return true;
         case '<':
@@ -39,7 +42,7 @@ bool isInAlphabet(char c) {
             return true;
         case ' ':
             return true;
-        case '\\':
+        case ';':
             return true;
     }
     return false;
@@ -54,6 +57,8 @@ bool allowConcatFollow(char c) {
             return true;
         case '?':
             return true;
+        case '\\':
+            return true;
     }
     return false;
 }
@@ -66,9 +71,25 @@ void Expression::in2post()
     var2regex[this->token_name] = "(" + this->expression + ")";
     std::stack<char> stk;
     char lastToken = '\0';
-    for (auto c: this->expression) 
+    for (int i = 0; i < this->expression.size(); i++) 
     {
-        if(isInAlphabet(c)) {
+        char c = this->expression[i];
+        if(c == '\\') {
+            if(allowConcatFollow(lastToken)) {
+                char Concatenation = '#';
+                while(!stk.empty() && PartialOrd(stk.top(), Concatenation)) {
+                    this->postfix += stk.top();
+                    stk.pop();
+                }
+                stk.push(Concatenation);
+            }
+            char nextChar = this->expression[i+1];
+            this->alphabet.insert(nextChar);
+            this->postfix += c; this->postfix += nextChar;
+            lastToken = c;
+            i += 1; // skip the next character
+        }
+        else if(isInAlphabet(c)) {
             if(allowConcatFollow(lastToken)) {
                 char Concatenation = '#';
                 while(!stk.empty() && PartialOrd(stk.top(), Concatenation)) {
@@ -123,18 +144,27 @@ void Expression::in2post()
 
 // Compare two operators
 bool Expression::PartialOrd(const char a, const char b) {
-    const std::string ordered_operator_lists = "(|#+*?";
+    const std::string ordered_operator_lists = "(|#*?";
     return ordered_operator_lists.find(a) >= ordered_operator_lists.find(b);
 }
 
 // build NFA from postfix regex
 void Expression::ConstructNFA(int sequence) {
     this->in2post();
+    // std::cerr << this->token_name << ": " << this->postfix << std::endl;
     std::stack<NFA> operands;
-    for (char c : this->postfix) {
-        if (isInAlphabet(c)) {
+    for (int i = 0; i < this->postfix.size(); ++i) {
+        char c = this->postfix[i];
+        if(c == '\\') {
+            // case: special operand, push to stack
+            c = this->postfix[++i];
+            operands.push(char2NFA(c));
+        }
+        else if (isInAlphabet(c)) {
+            // case: operand, push to stack
             operands.push(char2NFA(c));
         } else {
+            // case: operator, do regular expression operations
             NFA nfa1 = operands.top();
             operands.pop();
             if (c == '*') {

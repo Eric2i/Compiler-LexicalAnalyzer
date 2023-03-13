@@ -1,0 +1,6 @@
+<reserved: int><reserved: main><LEFT_BRACKET: (><RIGHT_BRACKET: )><LEFT_CURLYBRACE: {>
+<reserved: float><identifier: PI><ASSIGN: =><number: 3.14><SEMICOLON: ;>
+<reserved: float><identifier: radius><ASSIGN: =><digit: 2><SEMICOLON: ;>
+<reserved: double><identifier: area><ASSIGN: =><identifier: PI><MULTIPLY: *><identifier: radius><MULTIPLY: *><identifier: radius><SEMICOLON: ;>
+<reserved: return><digit: 0><SEMICOLON: ;>
+<RIGHT_CURLYBRACE: }>
