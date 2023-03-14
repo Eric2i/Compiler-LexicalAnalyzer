@@ -13,13 +13,17 @@ endif
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(BINDIR)/tester: $(OBJ) $(OBJDIR)/analyzer.o
+$(BINDIR)/tester: $(OBJ) $(OBJDIR)/test.o
+	$(CC) -o $@ $^
+
+$(BINDIR)/analyzer: $(OBJ) $(OBJDIR)/analyzer.o
 	$(CC) -o $@ $^
 
 test: $(BINDIR)/tester
 	$(BINDIR)/tester
 
-build: $(BINDIR)/Simulator
+build: $(BINDIR)/analyzer
+	$(BINDIR)/analyzer test/input/tokens.txt test/input/sourceCode.txt test/input/tokenized.txt
 
 clean:
 	rm -rf $(OBJDIR)/*
